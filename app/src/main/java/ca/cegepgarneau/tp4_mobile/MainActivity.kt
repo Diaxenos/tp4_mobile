@@ -1,5 +1,6 @@
 package ca.cegepgarneau.tp4_mobile
 
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import android.view.Menu
 import android.view.MenuItem
+import androidx.preference.PreferenceManager
 import ca.cegepgarneau.tp4_mobile.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -28,10 +30,13 @@ class MainActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+        // Ajout de préférences par défaut pour les préférences de l'application (SettingsActivity)
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(this)
+        val editor = sharedPref.edit()
+        editor.putString("nom", "Cegep")
+        editor.putString("prenom", "Garneau")
+        editor.apply()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -45,7 +50,11 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            // Lancement de l'activité SettingsActivity
+            R.id.mn_settings -> {
+                startActivity(Intent(this, SettingsActivity::class.java))
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

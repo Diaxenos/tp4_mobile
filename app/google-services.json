@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "736633981900",
+    "project_id": "tp4mobile-112be",
+    "storage_bucket": "tp4mobile-112be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736633981900:android:d16e6bf7d4b2b6c06e2b69",
+        "android_client_info": {
+          "package_name": "ca.cegepgarneau.tp4_mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736633981900-kmk33t5mut6je6hnelk40d4tav4vb5hr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7JCH9lMenWLbjvLd55cIN994RPGXvuUM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736633981900-kmk33t5mut6je6hnelk40d4tav4vb5hr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
