@@ -6,7 +6,12 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import ca.cegepgarneau.tp4_mobile.model.Marker
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObject
+import kotlinx.coroutines.tasks.await
 
 class GalleryViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -17,25 +22,31 @@ class GalleryViewModel(application: Application) : AndroidViewModel(application)
 
     var registration: ListenerRegistration? = null
 
-    fun getAllMarkers(): LiveData<List<Marker>> {
-        // Tous les markers dans firebase
-        Cr.get()
-        return getAllMarkers()
-    }
-    fun insert(marker: Marker) {
+    private val markers: MutableList<Marker> = mutableListOf()
+    fun getAllMarkers(): MutableList<Marker>{
         Cr
-            .add(marker)
-            .addOnSuccessListener { Log.d("TAG", "DocumentSnapshot added with ID: ") }
-            .addOnFailureListener { e -> Log.w("TAG", "Error adding document", e) }
-    }
-    fun insertAll(marker: List<Marker>) {
+            .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                Log.d("TAG", "onEvent: $value")
+                markers.clear()
+                Log.d("VALUE", "onEvent: $value")
+                if (value != null){
+                    for (document in value!!) {
+                        Log.d("DOCUMENT", "onEvent: $document")
+                        val marker = document.toObject<Marker>()
+                        Log.d("MARKER", "onEvent: $marker")
 
+                        markers.add(marker)
+                        Log.d("LISTE", "onEvent: $markers")
+
+                    }
+                }
+            }
+        Log.d("LISTE", "onEvent: $markers")
+        return markers
     }
-    fun update(marker: Marker) {
-    }
-    fun deleteAll() {
-    }
-    fun getMarkerById(id: Int): LiveData<Marker> {
-        return getMarkerById(id)
+
+    fun insert(marker: Marker) {
+        Cr.add(marker)
+        Log.d("MARKER AJOUTER", "insert: $marker")
     }
 }

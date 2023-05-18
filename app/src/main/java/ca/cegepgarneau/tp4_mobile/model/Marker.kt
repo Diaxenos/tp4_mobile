@@ -11,4 +11,6 @@ data class Marker(
     var latitude: Double,
     var longitude: Double,
     var message: String
-    ): java.io.Serializable
+    ): java.io.Serializable{
+    constructor(): this(0, false, "", "", "", 0.0, 0.0, "")
+    }

@@ -3,34 +3,31 @@ package ca.cegepgarneau.tp4_mobile
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.os.Debug
-import android.os.Message
 import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import android.widget.Toast.makeText
-import ca.cegepgarneau.tp4_mobile.R
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import ca.cegepgarneau.tp4_mobile.databinding.FragmentSecondBinding
-import ca.cegepgarneau.tp4_mobile.databinding.FragmentFirstBinding
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObject
 import com.squareup.picasso.Picasso
 import kotlin.concurrent.thread
 import ca.cegepgarneau.tp4_mobile.model.Marker as Marker1
+
 
 class SecondFragment : Fragment() , OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener,
     GoogleMap.InfoWindowAdapter, View.OnClickListener, GoogleMap.OnMyLocationButtonClickListener,
@@ -41,6 +38,16 @@ class SecondFragment : Fragment() , OnMapReadyCallback, GoogleMap.OnInfoWindowCl
     lateinit var mMap: GoogleMap
     private lateinit var btAdd: Button
     private lateinit var messageText: EditText
+
+    // Connexion à la base de données Firestore
+    var db = FirebaseFirestore.getInstance()
+
+    // Cr est un alias pour la collection "todos"
+    var Cr = db.collection("markers")
+
+    // Le listener qui permet de surveiller les changements dans la collection
+    // est enregistré dans cette variable afin de pouvoir le désactiver dans le onStop()
+    var registration: ListenerRegistration? = null
 
 
     // pour enregistrer la position de l'utilisateur
@@ -267,23 +274,38 @@ class SecondFragment : Fragment() , OnMapReadyCallback, GoogleMap.OnInfoWindowCl
 
         // Parcours la liste de markers et positionne les marqueurs
         // On met l'objet message dans le Tag du marqueur
+        // val galleryViewModel = ViewModelProvider(this).get(GalleryViewModel::class.java)
+        // galleryViewModel.getAllMarkers()
+
+        // Parcours la liste de markers et positionne les marqueurs
+        // On met l'objet message dans le Tag du marqueur
         val galleryViewModel = ViewModelProvider(this).get(GalleryViewModel::class.java)
-        galleryViewModel.getAllMarkers()
-            .observe(
-                viewLifecycleOwner
-            ) {value ->
+        Cr
+            .addSnapshotListener { value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                Log.d("TAG", "onEvent: $value")
                 markerList.clear()
-                markerList.addAll(value)
-                for (marker2 in markerList) {
-                    val position = LatLng(marker2.latitude, marker2.longitude)
-                    mMap.addMarker(
-                        MarkerOptions()
-                            .position(position)
-                            .title(marker2.firstname + " " + marker2.lastname)
-                            .snippet(marker2.message)
-                    )?.tag = marker2
+                Log.d("VALUE", "onEvent: $value")
+                if (value != null){
+                    for (document in value!!) {
+                        Log.d("DOCUMENT", "onEvent: $document")
+                        val marker = document.toObject<ca.cegepgarneau.tp4_mobile.model.Marker>()
+                        Log.d("MARKER", "onEvent: $marker")
+
+                        markerList.add(marker)
+                        Log.d("LISTE", "onEvent: $markerList")
+
+                    }
+                    for (marker2 in markerList) {
+                        Log.d("MARKER2", "onEvent: $marker2")
+                        val position = LatLng(marker2.latitude, marker2.longitude)
+                        mMap.addMarker(
+                            MarkerOptions()
+                                .position(position)
+                                .title(marker2.firstname + " " + marker2.lastname)
+                                .snippet(marker2.message)
+                        )?.tag = marker2
+                    }
                 }
-                Log.d("TAG", "onMapReady: $markerList")
             }
     }
 
